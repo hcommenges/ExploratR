@@ -89,7 +89,7 @@ shinyServer(function(input, output, session) {
   output$colquanlidep <- renderUI({
     colNames <- colnames(baseData$df)
     selectInput(inputId = "quanlidep", 
-                label = "Choisir la variable à expliquer", 
+                label = "Choisir la variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
                 multiple = TRUE, 
@@ -99,13 +99,93 @@ shinyServer(function(input, output, session) {
   output$colquanliindep <- renderUI({
     colNames <- colnames(baseData$df)
     selectInput(inputId = "quanliindep", 
-                label = "Choisir la variable explicative", 
+                label = "Choisir la variable explicative (quali)", 
                 choices = colNames, 
                 selected = "", 
                 multiple = TRUE, 
                 selectize = TRUE)
   })  
-
+  
+  output$colaovdep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "aovdep", 
+                label = "Choisir la variable à expliquer (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })    
+  
+  output$colaovindep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "aovindep", 
+                label = "Choisir deux variables explicatives (quali)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })
+  
+  output$colancovdep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "ancovdep", 
+                label = "Choisir la variable à expliquer (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })    
+  
+  output$colancovindep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "ancovindep", 
+                label = "Choisir deux variables explicatives (1 quanti puis 1 quali)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  }) 
+  
+  output$colquanti2dep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "quanti2dep", 
+                label = "Choisir la variable à expliquer (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })    
+  
+  output$colquanti2indep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "quanti2indep", 
+                label = "Choisir deux variables explicatives (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  }) 
+  
+  output$colregmultdep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "regmultdep", 
+                label = "Choisir une variable à expliquer (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  }) 
+  
+  output$colregmultindep <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "regmultindep", 
+                label = "Choisir plusieurs variables explicatives (quanti)", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })
+  
   
   # DONNEES ----
   
@@ -267,6 +347,138 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  
+  
+  # TRIVARIE : ANOVA 2 FACTORS ----
+  
+  # Print boxplot
+  
+  output$boxes2 <- renderPlot({
+    if (!is.null(input$aovindep) & !is.null(input$aovdep)){
+      Boxplot2(df = baseData$df, varx = input$aovindep[1], vary = input$aovdep, groupx = input$aovindep[2])
+    } else {
+      return()
+    }
+  })
+  
+  # Compute linear regression
+  
+  aov2Mod <- reactive({
+    if (!is.null(input$aovdep) & !is.null(input$aovindep)){
+      ComputeRegression(df = baseData$df, vardep = input$aovdep, varindep = input$aovindep)
+    } else {
+      return()
+    }
+  })
+  
+  # Print coefficients
+  
+  output$coefanova2 <- renderText({
+    if (!is.null(input$aovdep) & !is.null(input$aovindep)){
+      print.xtable(xtable(aov2Mod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+    } else {
+      return()
+    }
+  })
+  
+  # TRIVARIE : ANCOVA ----
+  
+  # Print scatter
+  
+  output$scatterancov <- renderPlot({
+    if (!is.null(input$ancovindep) & !is.null(input$ancovdep)){
+      ScatterPlotAncov(df = baseData$df, varx = input$ancovindep[1], vary = input$ancovdep, groupx = input$ancovindep[2])
+    } else {
+      return()
+    }
+  })
+  
+  # Compute linear regression
+  
+  ancovMod <- reactive({
+    if (!is.null(input$ancovdep) & !is.null(input$ancovindep)){
+      ComputeRegression(df = baseData$df, vardep = input$ancovdep, varindep = input$ancovindep, interact = input$interactancov)
+    } else {
+      return()
+    }
+  })
+  
+  # Print coefficients
+  
+  output$coefancov <- renderText({
+    if (!is.null(input$ancovdep) & !is.null(input$ancovindep)){
+      print.xtable(xtable(ancovMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+    } else {
+      return()
+    }
+  })
+  
+  
+  
+  # TRIVARIE : REGRESSION ----
+  
+  # Print scatter
+  
+  output$scatterreg2 <- renderPlot({
+    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+      ScatterPlot3D(df = baseData$df, varx = input$quanti2indep[1], vary = input$quanti2indep[2], varz = input$quanti2dep)
+    } else {
+      return()
+    }
+  })
+  
+  # Compute linear regression
+  
+  reg2Mod <- reactive({
+    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+      ComputeRegression(df = baseData$df, vardep = input$quanti2dep, varindep = input$quanti2indep, interact = input$interactreg)
+    } else {
+      return()
+    }
+  })
+  
+  # Print coefficients
+  
+  output$coefreg2 <- renderText({
+    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+      print.xtable(xtable(reg2Mod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+    } else {
+      return()
+    }
+  })
+  
+  
+  
+  # MULTIVARIE : REGRESSION ----
+  
+  # Compute linear regression
+  
+  regmultMod <- reactive({
+    if (!is.null(input$regmultindep) & !is.null(input$regmultdep)){
+      ComputeRegressionMult(df = baseData$df, vardep = input$regmultdep, varindep = input$regmultindep)
+    } else {
+      return()
+    }
+  })
+  
+  # Print matrix
+  output$matcor <- renderText({
+    if (!is.null(input$regmultindep) & !is.null(input$regmultdep)){
+      print.xtable(xtable(regmultMod()$MATCOR), type = "HTML", include.rownames = TRUE, html.table.attributes = "frame = border")
+    } else {
+      return()
+    }
+  })
+  
+  # Print coefficients
+  
+  output$coefregmult <- renderText({
+    if (!is.null(input$regmultdep) & !is.null(input$regmultindep)){
+      print.xtable(xtable(regmultMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+    } else {
+      return()
+    }
+  })
   
   
 })

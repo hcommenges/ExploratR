@@ -49,7 +49,7 @@ shinyUI(fluidPage(
     
     tabPanel("Bivarié",
              tabsetPanel(
-               tabPanel("quali-quali",
+               tabPanel("CONTNGENCE (quali-quali)",
                         fluidRow(
                           column(3, wellPanel(
                             tags$h4("Choisir les variables"),
@@ -79,7 +79,7 @@ shinyUI(fluidPage(
                ),
                
                
-               tabPanel("quanti-quanti",
+               tabPanel("RÉGRESSION (quanti-quanti)",
                         fluidRow(
                           column(3, wellPanel(
                             tags$h4("Choisir les variables"),
@@ -95,7 +95,7 @@ shinyUI(fluidPage(
                         )
                ),
                
-               tabPanel("quali-quanti",
+               tabPanel("ANOVA (quali-quanti)",
                         fluidRow(
                           column(3, wellPanel(
                             tags$h4("Choisir les variables"),
@@ -113,6 +113,95 @@ shinyUI(fluidPage(
                )
              )
     ),
+    
+    tabPanel("Trivarié",
+             tabsetPanel(
+               tabPanel("ANOVA (2 quali)",
+                        fluidRow(
+                          column(3, wellPanel(
+                            tags$h4("Choisir les variables"),
+                            uiOutput("colaovdep"),
+                            uiOutput("colaovindep")
+                          )),
+                          column(5,
+                                 tags$h4("Résumé graphique"),
+                                 plotOutput("boxes2")
+                          ),
+                          column(4, 
+                                 tags$h4("Résumé numérique"),
+                                 htmlOutput("coefanova2")
+                          )
+                        )
+               ),
+               
+               tabPanel("ANCOVA (1 quali / 1 quanti)",
+                        fluidRow(
+                          column(3, wellPanel(
+                            tags$h4("Choisir les variables"),
+                            uiOutput("colancovdep"),
+                            uiOutput("colancovindep"),
+                            checkboxInput(inputId = "interactancov", 
+                                          label = "Interaction entre les variables explicatives",
+                                          value = FALSE)
+                          )),
+                          column(5,
+                                 tags$h4("Résumé graphique"),
+                                 plotOutput("scatterancov")
+                          ),
+                          column(4, 
+                                 tags$h4("Résumé numérique"),
+                                 htmlOutput("coefancov")
+                          )
+                        )
+               ),
+               
+               tabPanel("RÉGRESSION (2 quanti)",
+                        fluidRow(
+                          column(3, wellPanel(
+                            tags$h4("Choisir les variables"),
+                            uiOutput("colquanti2dep"),
+                            uiOutput("colquanti2indep"),
+                            checkboxInput(inputId = "interactreg", 
+                                          label = "Interaction entre les variables explicatives",
+                                          value = FALSE)
+                          )),
+                          column(5,
+                                 tags$h4("Résumé graphique"),
+                                 plotOutput("scatterreg2")
+                          ),
+                          column(4, 
+                                 tags$h4("Résumé numérique"),
+                                 htmlOutput("coefreg2")
+                          )
+                        )
+               )
+             )
+    ),
+    
+    
+    tabPanel("Multivarié",
+             tabsetPanel(
+               tabPanel("RÉGRESSION",
+                        fluidRow(
+                          column(3, wellPanel(
+                            tags$h4("Choisir les variables"),
+                            uiOutput("colregmultdep"),
+                            uiOutput("colregmultindep")
+                          )),
+                          column(5,
+                                 tags$h4("Matrice de corrélation"),
+                                 htmlOutput("matcor")
+                          ),
+                          column(4, 
+                                 tags$h4("Résumé numérique du modèle"),
+                                 htmlOutput("coefregmult")
+                          )
+                        )
+               ),
+               
+               tabPanel("ANALYSE FACTORIELLE")
+               )
+             ),
     
     tabPanel("Guide d'utilisation", 
              fluidRow(

@@ -8,6 +8,7 @@
 
 require(RColorBrewer)
 require(ggplot2)
+library(scatterplot3d)
 library(xtable)
 
 
@@ -88,10 +89,38 @@ Boxplot2 <- function(df, varx, vary, groupx){
   return(boxPlot)
 }
 
+
+# Draw scatter plot ----
+
+ScatterPlotAncov <- function(df, varx, vary, groupx){
+  scatPlot <- ggplot(df) + 
+    geom_point(aes_string(x = varx, y = vary, group = groupx, color = groupx)) + 
+    geom_smooth(aes_string(x = varx, y = vary, group = groupx, color = groupx), method = "lm", se = FALSE) +
+    theme_bw()
+  
+  return(scatPlot)
+}
+
+# Draw scatter plot 3D ----
+
+ScatterPlot3D <- function(df, varx, vary, varz){
+  scatPlot <- scatterplot3d(x = df[, varx], y = df[, vary], z = df[, varz], pch = 20, highlight.3d = FALSE, angle = 35,
+                            xlab = varx, ylab = vary, zlab = varz)
+  fitMod <- lm(formula = formula(eval(paste(varz, "~", varx, "+", vary, sep = " "))), data = df)
+  scatPlot$plane3d(fitMod, lty.box = "solid")
+  
+  return(scatPlot)
+}
+
+
 # Compute linear model ----
 
-ComputeRegression <- function(df, vardep, varindep){
-  linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "+")))), data = df))
+ComputeRegression <- function(df, vardep, varindep, interact = FALSE){
+  if(interact == FALSE){
+    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "+")))), data = df))
+  } else {
+    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "*")))), data = df))
+  }
   coefReg <- round(linMod$coefficients, digits = 2)[, 1:2]
   rawR2 <- round(linMod$r.squared, digits = 2)
   adjR2 <- round(linMod$adj.r.squared, digits = 2)
@@ -108,5 +137,26 @@ ComputeRegression <- function(df, vardep, varindep){
   return(list(TABCOEF = tabResults, TABRESID = tabResid, MATCOR = matCor))
 }
 
+
+ComputeRegressionMult <- function(df, vardep, varindep, interact = FALSE){
+  if(interact == FALSE){
+    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "+")))), data = df))
+  } else {
+    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "*")))), data = df))
+  }
+  coefReg <- round(linMod$coefficients, digits = 2)[, 1:2]
+  rawR2 <- round(linMod$r.squared, digits = 2)
+  adjR2 <- round(linMod$adj.r.squared, digits = 2)
+  matCor <- round(cor(df[, c(vardep, varindep)], use = "complete.obs", method = "pearson"), digits = 3)
+  tabResid <- data.frame(ABSRESID = round(linMod$residuals, digits = 3), 
+                         RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 4))
+  
+  tabResults <- data.frame(CONCEPT = c("Coef. de détermination",
+                                       "Coef. de détermination multiple",
+                                       row.names(coefReg)),
+                           VALEUR = c(rawR2, adjR2, coefReg[, 1]),
+                           stringsAsFactors = FALSE)
+  return(list(TABCOEF = tabResults, TABRESID = tabResid, MATCOR = matCor))
+}
 
 
