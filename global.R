@@ -9,6 +9,7 @@
 require(RColorBrewer)
 require(ggplot2)
 library(scatterplot3d)
+library(ade4)
 library(xtable)
 
 
@@ -127,10 +128,10 @@ ComputeRegression <- function(df, vardep, varindep, interact = FALSE){
   # matCor <- round(cor(df[, c(vardep, varindep)], use = "complete.obs", method = "pearson"), digits = 3)
   matCor <- 1
   tabResid <- data.frame(ABSRESID = round(linMod$residuals, digits = 3), 
-                         RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 4))
+                         RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 3))
   
   tabResults <- data.frame(CONCEPT = c("Coef. de détermination",
-                                       "Coef. de détermination multiple",
+                                       "Coef. de détermination ajusté",
                                        row.names(coefReg)),
                            VALEUR = c(rawR2, adjR2, coefReg[, 1]),
                            stringsAsFactors = FALSE)
@@ -152,7 +153,7 @@ ComputeRegressionMult <- function(df, vardep, varindep, interact = FALSE){
                          RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 4))
   
   tabResults <- data.frame(CONCEPT = c("Coef. de détermination",
-                                       "Coef. de détermination multiple",
+                                       "Coef. de détermination ajusté",
                                        row.names(coefReg)),
                            VALEUR = c(rawR2, adjR2, coefReg[, 1]),
                            stringsAsFactors = FALSE)
@@ -160,3 +161,53 @@ ComputeRegressionMult <- function(df, vardep, varindep, interact = FALSE){
 }
 
 
+ComputePrincipalComp <- function(df, varquanti, ident){
+  # compute analysis
+  selecVarQuanti <- df[, varquanti]
+  row.names(selecVarQuanti) <- df[, ident]
+  dudiObj <- dudi.pca(df = selecVarQuanti, center = TRUE, scale = TRUE, scannf = FALSE, nf = 4)
+  
+  return(dudiObj)
+}
+  
+  
+DecompInertia <- function(dudiobj){
+  dimTab <- length(dudiobj$eig)
+  summaryPca <- data.frame(
+    EIG = dudiobj$eig,
+    PCTVAR = 100 * dudiobj$eig / sum(dudiobj$eig),
+    CUMPCTVAR = cumsum(100 * dudiobj$eig / sum(dudiobj$eig)),
+    COMP = factor(x = seq(1, dimTab, 1),
+                  levels = seq(1, dimTab, 1),
+                  labels = paste("C", seq(1, dimTab, 1), sep = ""))
+  )
+  
+  DecomPlot <- ggplot(summaryPca) + geom_bar(aes(x = COMP, y = PCTVAR), stat = "identity") + 
+    scale_x_discrete("Composantes") +
+    scale_y_continuous("Pourcentage de l'inertie totale (%)") +
+    theme_bw()  
+  
+  return(DecomPlot)
+}
+
+
+CorCircle <- function(dudiobj, xaxis, yaxis){
+  s.corcircle(dudiobj$co, xax = as.numeric(xaxis), yax = as.numeric(yaxis))
+}
+
+
+CorCompMat <- function(dudiobj, xaxis, yaxis){
+  matCor <- round(cor(dudiobj$tab, use = "complete.obs", method = "pearson"), digits = 2)
+  compCor <- dudiobj$co[, c(as.numeric(xaxis), as.numeric(yaxis))]
+  finalMatCor <- cbind(compCor, matCor)
+  return(finalMatCor)
+} 
+
+
+ContribVarIndiv <- function(dudiobj){
+  inertiaPca <- inertia.dudi(dudiobj, row.inertia = TRUE, col.inertia = TRUE)
+  contribVar <- round(0.1 * inertiaPca$col.abs, digits = 0)
+  contribInd <- data.frame(ID = row.names(inertiaPca$row.abs), round(0.1 * inertiaPca$row.abs, digits = 0), stringsAsFactors = FALSE)
+  
+  return(list(CTRVAR = contribVar, CTRIND = contribInd))
+}

@@ -14,7 +14,7 @@ shinyServer(function(input, output, session) {
       minMax <- range(baseData$df[, input$uniquanti], na.rm = TRUE)
       varRange <- minMax[2] - minMax[1]
       sliderInput(inputId = "nbins", 
-                  label = "Index of sequences", 
+                  label = "Nombre de classes", 
                   min = 0, 
                   max = 30, 
                   value = 10,
@@ -186,6 +186,43 @@ shinyServer(function(input, output, session) {
                 selectize = TRUE)
   })
   
+  output$colfacto <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "factovar", 
+                label = "Choisir plusieurs variables quantitatives", 
+                choices = colNames, 
+                selected = "", 
+                multiple = TRUE, 
+                selectize = TRUE)
+  })
+  
+  output$colid <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "idvar", 
+                label = "Choisir la variable identifiant", 
+                choices = colNames, 
+                selected = "", 
+                multiple = FALSE, 
+                selectize = TRUE)
+  })
+  
+  
+  # ADD COLUMNS
+  
+  # Add regression residuals
+  
+  observeEvent(input$addreg1resid, {
+    if (isolate(input$reg1prefix) != ""){
+      absName <- paste(isolate(input$reg1prefix), "AbsResid", sep = "_")
+      relName <- paste(isolate(input$reg1prefix), "RelResid", sep = "_")
+    } else {
+      absName <- paste("lm", "AbsResid", sep = "_")
+      relName <- paste("lm", "RelResid", sep = "_")
+    }
+    
+    baseData$df[, c(absName, relName)] <- ComputeRegression()$TABRESID
+  })
+  
   
   # DONNEES ----
   
@@ -205,7 +242,8 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$uniquanti) & is.null(input$uniquali)){
       textResult <- paste("Moyenne = ", round(mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
                           "Médiane = ", round(median(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
-                          "Écart-type = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), 
+                          "Écart-type = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
+                          "Coef. de variation = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE) / mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2),
                           sep = "")
       return(textResult)
 
@@ -307,9 +345,9 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefreg <- renderText({
+  output$coefreg <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$quantidep) & !is.null(input$quantiindep)){
-      print.xtable(xtable(regMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      regMod()$TABCOEF
     } else {
       return()
     }
@@ -339,9 +377,9 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefanova <- renderText({
+  output$coefanova <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$quanlidep) & !is.null(input$quanliindep)){
-      print.xtable(xtable(aovMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      aovMod()$TABCOEF
     } else {
       return()
     }
@@ -373,9 +411,9 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefanova2 <- renderText({
+  output$coefanova2 <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$aovdep) & !is.null(input$aovindep)){
-      print.xtable(xtable(aov2Mod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      aov2Mod()$TABCOEF
     } else {
       return()
     }
@@ -405,9 +443,9 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefancov <- renderText({
+  output$coefancov <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$ancovdep) & !is.null(input$ancovindep)){
-      print.xtable(xtable(ancovMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      ancovMod()$TABCOEF
     } else {
       return()
     }
@@ -439,9 +477,9 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefreg2 <- renderText({
+  output$coefreg2 <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
-      print.xtable(xtable(reg2Mod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      reg2Mod()$TABCOEF
     } else {
       return()
     }
@@ -462,9 +500,9 @@ shinyServer(function(input, output, session) {
   })
   
   # Print matrix
-  output$matcor <- renderText({
+  output$matcor <- renderTable(include.rownames = TRUE, expr = {
     if (!is.null(input$regmultindep) & !is.null(input$regmultdep)){
-      print.xtable(xtable(regmultMod()$MATCOR), type = "HTML", include.rownames = TRUE, html.table.attributes = "frame = border")
+      regmultMod()$MATCOR
     } else {
       return()
     }
@@ -472,13 +510,82 @@ shinyServer(function(input, output, session) {
   
   # Print coefficients
   
-  output$coefregmult <- renderText({
+  output$coefregmult <- renderTable(include.rownames = FALSE, expr = {
     if (!is.null(input$regmultdep) & !is.null(input$regmultindep)){
-      print.xtable(xtable(regmultMod()$TABCOEF), type = "HTML", include.rownames = FALSE, html.table.attributes = "frame = border")
+      regmultMod()$TABCOEF
     } else {
       return()
     }
   })
   
+  
+  # MULTIVARIE : ANALYSE FACTORIELLE ----
+  
+  # Compute factorial analysis
+  
+  principalComp <- reactive({
+    if (!is.null(input$factovar)){
+      ComputePrincipalComp(df = baseData$df, varquanti = input$factovar, ident = input$idvar)
+    } else {
+      return()
+    }
+  })
+  
+  # Correlation matrix
+  
+  output$facmatcor <- renderTable({
+    if (!is.null(input$factovar)){
+      CorCompMat(dudiobj = principalComp(), xaxis = input$xaxis, yaxis = input$yaxis)
+    } else {
+      return()
+    }
+  })
+  
+  
+  # Plot components
+  
+  output$compinert <- renderPlot({
+    if (!is.null(input$factovar)){
+      DecompInertia(dudiobj = principalComp())
+    } else {
+      return()
+    }
+  })
+  
+  # Plot circle of correlations
+  
+  output$corcircle <- renderPlot({
+    if (!is.null(input$factovar)){
+      CorCircle(dudiobj = principalComp(), xaxis = input$xaxis, yaxis = input$yaxis)
+    } else {
+      return()
+    }
+  })
+  
+  # Table of contributions (variables and observations)
+  
+  output$contribvar <- renderTable(digits = 0, expr = {
+    if (!is.null(input$factovar)){
+      ContribVarIndiv(dudiobj = principalComp())$CTRVAR
+    } else {
+      return()
+    }
+  })
+  
+  output$contribind <- renderDataTable(options = list(pageLength = 10), expr = {
+    if (!is.null(input$factovar)){
+      ContribVarIndiv(dudiobj = principalComp())$CTRIND
+    } else {
+      return()
+    }
+  })
+  
+  output$carto <- renderPlot({
+    # if (!is.null(input$factovar)){
+      plot(baseData$spdf, col = "grey", border = "white")
+    # } else {
+      # return()
+    # }
+  })
   
 })

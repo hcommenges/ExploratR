@@ -70,9 +70,9 @@ shinyUI(fluidPage(
                           ),
                           column(4, 
                                  tags$h4("Résumé numérique"),
-                                 tags$h5("Mesures locales"),
+                                 tags$h5(HTML("<strong>Mesures locales</strong>")),
                                  tableOutput("contingtab"),
-                                 tags$h5("Mesures globales"),
+                                 tags$h5(HTML("<strong>Mesures globales</strong>")),
                                  htmlOutput("contingtext")
                           )
                         )
@@ -85,13 +85,20 @@ shinyUI(fluidPage(
                             tags$h4("Choisir les variables"),
                             uiOutput("colquantidep"),
                             uiOutput("colquantiindep")
+                          ),
+                          checkboxInput("reg1save", "Enregistrer les résidus"),
+                          conditionalPanel(condition = "input.reg1save == true",
+                                           fluidRow(
+                                             column(2, textInput(inputId = "reg1prefix", label = "Préfixe", value = "")),
+                                             column(1, actionButton(inputId = "addreg1resid", label = "Ajouter les résidus"))
+                                           )
                           )),
                           column(5, 
                                  tags$h4("Résumé graphique"),
                                  plotOutput("scatterplot")),
                           column(4,
                                  tags$h4("Résumé numérique"),
-                                 htmlOutput("coefreg"))
+                                 tableOutput("coefreg"))
                         )
                ),
                
@@ -107,7 +114,7 @@ shinyUI(fluidPage(
                                  plotOutput("boxes")),
                           column(4,
                                  tags$h4("Résumé numérique"),
-                                 htmlOutput("coefanova")
+                                 tableOutput("coefanova")
                           )
                         )
                )
@@ -129,7 +136,7 @@ shinyUI(fluidPage(
                           ),
                           column(4, 
                                  tags$h4("Résumé numérique"),
-                                 htmlOutput("coefanova2")
+                                 tableOutput("coefanova2")
                           )
                         )
                ),
@@ -150,7 +157,7 @@ shinyUI(fluidPage(
                           ),
                           column(4, 
                                  tags$h4("Résumé numérique"),
-                                 htmlOutput("coefancov")
+                                 tableOutput("coefancov")
                           )
                         )
                ),
@@ -171,7 +178,7 @@ shinyUI(fluidPage(
                           ),
                           column(4, 
                                  tags$h4("Résumé numérique"),
-                                 htmlOutput("coefreg2")
+                                 tableOutput("coefreg2")
                           )
                         )
                )
@@ -190,18 +197,59 @@ shinyUI(fluidPage(
                           )),
                           column(5,
                                  tags$h4("Matrice de corrélation"),
-                                 htmlOutput("matcor")
+                                 tableOutput("matcor")
                           ),
                           column(4, 
                                  tags$h4("Résumé numérique du modèle"),
-                                 htmlOutput("coefregmult")
+                                 tableOutput("coefregmult")
                           )
                         )
                ),
                
-               tabPanel("ANALYSE FACTORIELLE")
+               tabPanel("ANALYSE FACTORIELLE",
+                        fluidRow(
+                          column(3, wellPanel(
+                            tags$h4("Choisir les variables"),
+                            uiOutput("colfacto"),
+                            uiOutput("colid"),
+                            selectInput("xaxis", label = "Axe des abscisses (x)", choices = 1:4, selected = 1, multiple = FALSE, selectize = TRUE),
+                            selectInput("yaxis", label = "Axe des ordonnées (y)", choices = 1:4, selected = 2, multiple = FALSE, selectize = TRUE))
+                          ),
+                          column(9,
+                                 tags$h4("Matrice de corrélation"),
+                                 tableOutput("facmatcor"))
+                        ),
+                        fluidRow(
+                          column(3, wellPanel()),
+                          column(4,
+                                 tags$h4("Cercle des corrélations"),
+                                 plotOutput("corcircle")),
+                          column(5,
+                                 tags$h4("Décomposition de l'inertie"),
+                                 plotOutput("compinert")
+                          )
+                        ),
+                        fluidRow(
+                          column(3, wellPanel()),
+                          column(4,
+                                 tags$h4("Contribution des variables (somme = 1000)"),
+                                 tableOutput("contribvar")),
+                          column(5,
+                                 tags$h4("Contribution des individus (somme = 1000)"),
+                                 dataTableOutput("contribind")
+                          )
+                        )
                )
-             ),
+             )
+    ),
+    
+    tabPanel("Cartographie", 
+             fluidRow(
+               column(3, wellPanel()),
+               column(9, 
+                      plotOutput("carto"))
+             )
+    ),
     
     tabPanel("Guide d'utilisation", 
              fluidRow(
