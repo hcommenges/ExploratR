@@ -10,7 +10,7 @@ require(RColorBrewer)
 require(ggplot2)
 library(scatterplot3d)
 library(ade4)
-library(xtable)
+library(cartography)
 
 
 # load data ----
@@ -125,8 +125,7 @@ ComputeRegression <- function(df, vardep, varindep, interact = FALSE){
   coefReg <- round(linMod$coefficients, digits = 2)[, 1:2]
   rawR2 <- round(linMod$r.squared, digits = 2)
   adjR2 <- round(linMod$adj.r.squared, digits = 2)
-  # matCor <- round(cor(df[, c(vardep, varindep)], use = "complete.obs", method = "pearson"), digits = 3)
-  matCor <- 1
+
   tabResid <- data.frame(ABSRESID = round(linMod$residuals, digits = 3), 
                          RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 3))
   
@@ -135,7 +134,7 @@ ComputeRegression <- function(df, vardep, varindep, interact = FALSE){
                                        row.names(coefReg)),
                            VALEUR = c(rawR2, adjR2, coefReg[, 1]),
                            stringsAsFactors = FALSE)
-  return(list(TABCOEF = tabResults, TABRESID = tabResid, MATCOR = matCor))
+  return(list(TABCOEF = tabResults, TABRESID = tabResid))
 }
 
 
@@ -211,3 +210,6 @@ ContribVarIndiv <- function(dudiobj){
   
   return(list(CTRVAR = contribVar, CTRIND = contribInd))
 }
+
+
+

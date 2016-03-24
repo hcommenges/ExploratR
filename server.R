@@ -206,15 +206,25 @@ shinyServer(function(input, output, session) {
                 selectize = TRUE)
   })
   
+  output$colcartovar <- renderUI({
+    colNames <- colnames(baseData$df)
+    selectInput(inputId = "cartovar", 
+                label = "Choisir la variable", 
+                choices = colNames, 
+                selected = "", 
+                multiple = FALSE, 
+                selectize = TRUE)
+  })
   
-  # ADD COLUMNS
+  
+  # ADD COLUMNS ----
   
   # Add regression residuals
   
   observeEvent(input$addreg1resid, {
-    if (isolate(input$reg1prefix) != ""){
-      absName <- paste(isolate(input$reg1prefix), "AbsResid", sep = "_")
-      relName <- paste(isolate(input$reg1prefix), "RelResid", sep = "_")
+    if (input$reg1prefix != ""){
+      absName <- paste(input$reg1prefix, "AbsResid", sep = "_")
+      relName <- paste(input$reg1prefix, "RelResid", sep = "_")
     } else {
       absName <- paste("lm", "AbsResid", sep = "_")
       relName <- paste("lm", "RelResid", sep = "_")
@@ -582,7 +592,7 @@ shinyServer(function(input, output, session) {
   
   output$carto <- renderPlot({
     # if (!is.null(input$factovar)){
-      plot(baseData$spdf, col = "grey", border = "white")
+      choroLayer(spdf = baseData$spdf, df = baseData$df, spdfid = "BUREAU", dfid = "BUREAU", var = input$cartovar, method = input$cartomethod, nclass = input$cartoclass)
     # } else {
       # return()
     # }

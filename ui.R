@@ -245,7 +245,12 @@ shinyUI(fluidPage(
     
     tabPanel("Cartographie", 
              fluidRow(
-               column(3, wellPanel()),
+               column(3, wellPanel(
+                 tags$h4("Choisir la variable"),
+                 uiOutput("colcartovar"),
+                 selectInput("cartomethod", label = "Méthode de discrétisation", choices = c("sd", "equal", "quantile", "jenks"), selected = "quantile", multiple = FALSE, selectize = TRUE),
+                 sliderInput("cartoclass", label = "Nombre de classes", min = 1, max = 8, value = 4)
+               )),
                column(9, 
                       plotOutput("carto"))
              )
