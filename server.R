@@ -6,6 +6,16 @@
 
 shinyServer(function(input, output, session) {
   
+  observe({
+    if (!is.null(input$fileInput)){
+      baseData$df <- read.csv(file=input$fileInput$datapath, header=input$header, sep=input$sep, quote=input$quote, dec=input$dec, stringsAsFactor=FALSE, check.names=FALSE)
+    }
+  })
+  
+  observeEvent(input$loadExData, {
+    baseData$df <- tabFinal
+  })
+  
   # DYNAMIC UI ----
   
   # dynamic slider
@@ -24,95 +34,95 @@ shinyServer(function(input, output, session) {
     }
   })
   
-
+  
   # update and choose columns
   output$coluniquanti <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "uniquanti", 
                 label = "Choisir une variable quanti", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })
   
   output$coluniquali <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "uniquali", 
                 label = "Choisir une variable quali", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })
-
+  
   output$colqualidep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "qualidep", 
                 label = "Choisir la variable à expliquer", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })
   
   output$colqualiindep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "qualiindep", 
                 label = "Choisir la variable explicative", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })
   
   output$colquantidep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "quantidep", 
                 label = "Choisir la variable à expliquer", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })  
   
   output$colquantiindep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "quantiindep", 
                 label = "Choisir la variable explicative", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })  
   
   output$colquanlidep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "quanlidep", 
                 label = "Choisir la variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })    
   
   output$colquanliindep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "quanliindep", 
                 label = "Choisir la variable explicative (quali)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })  
   
   output$colaovdep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "aovdep", 
                 label = "Choisir la variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })    
   
@@ -127,12 +137,12 @@ shinyServer(function(input, output, session) {
   })
   
   output$colancovdep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "ancovdep", 
                 label = "Choisir la variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })    
   
@@ -147,12 +157,12 @@ shinyServer(function(input, output, session) {
   }) 
   
   output$colquanti2dep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "quanti2dep", 
                 label = "Choisir la variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   })    
   
@@ -167,12 +177,12 @@ shinyServer(function(input, output, session) {
   }) 
   
   output$colregmultdep <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "regmultdep", 
                 label = "Choisir une variable à expliquer (quanti)", 
                 choices = colNames, 
                 selected = "", 
-                multiple = TRUE, 
+                multiple = FALSE, 
                 selectize = TRUE)
   }) 
   
@@ -207,7 +217,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$colcartovar <- renderUI({
-    colNames <- colnames(baseData$df)
+    colNames <- c("", colnames(baseData$df))
     selectInput(inputId = "cartovar", 
                 label = "Choisir la variable", 
                 choices = colNames, 
@@ -219,7 +229,7 @@ shinyServer(function(input, output, session) {
   
   # ADD COLUMNS ----
   
-  # Add regression residuals
+  # Add regression residuals (simple)
   
   observeEvent(input$addreg1resid, {
     if (input$reg1prefix != ""){
@@ -230,8 +240,69 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- ComputeRegression()$TABRESID
+    baseData$df[, c(absName, relName)] <- regMod()$TABRESID
   })
+  
+  # Add regression residuals (ancova)
+  
+  observeEvent(input$addreg2resid, {
+    if (input$reg2prefix != ""){
+      absName <- paste(input$reg2prefix, "AbsResid", sep = "_")
+      relName <- paste(input$reg2prefix, "RelResid", sep = "_")
+    } else {
+      absName <- paste("lm", "AbsResid", sep = "_")
+      relName <- paste("lm", "RelResid", sep = "_")
+    }
+    
+    baseData$df[, c(absName, relName)] <- ancovMod()$TABRESID
+  })
+  
+  # Add regression residuals (2 quanti)
+  
+  observeEvent(input$addreg3resid, {
+    if (input$reg1prefix != ""){
+      absName <- paste(input$reg3prefix, "AbsResid", sep = "_")
+      relName <- paste(input$reg3prefix, "RelResid", sep = "_")
+    } else {
+      absName <- paste("lm", "AbsResid", sep = "_")
+      relName <- paste("lm", "RelResid", sep = "_")
+    }
+    
+    baseData$df[, c(absName, relName)] <- reg2Mod()$TABRESID
+  })
+  
+  # Add regression residuals (multiple)
+  
+  observeEvent(input$addreg4resid, {
+    if (input$reg1prefix != ""){
+      absName <- paste(input$reg1prefix, "AbsResid", sep = "_")
+      relName <- paste(input$reg1prefix, "RelResid", sep = "_")
+    } else {
+      absName <- paste("lm", "AbsResid", sep = "_")
+      relName <- paste("lm", "RelResid", sep = "_")
+    }
+    
+    baseData$df[, c(absName, relName)] <- regmultMod()$TABRESID
+  })
+  
+  
+  # Add factorial coordinates
+  
+  observeEvent(input$addfaccoord, {
+    if (input$facprefix != ""){
+      compNames <- paste(input$facprefix, c("C1", "C2", "C3", "C4"), sep = "_")
+    } else {
+      compNames <- c("C1", "C2", "C3", "C4")
+    }
+    
+    baseData$df[, compNames] <- principalComp()$li
+  })
+  
+  
+  
+  # GUIDE  ----
+  
+  output$citation <- renderText("<strong>Once upon a time, statisticians only explored</strong> (John Tukey)")
   
   
   # DONNEES ----
@@ -240,24 +311,37 @@ shinyServer(function(input, output, session) {
   output$contentstable <- renderDataTable({
     baseData$df
   })
-
-  output$description <- renderText("<strong>Projet ANR Cartelec</strong> <br/> Résultats des présidentielles 2007 et données socio-économiques à l'échelle du bureau de vote")
-
+  
+  output$description <- renderText("<strong>Projet ANR Cartelec</strong> <br/> Résultats des présidentielles 2007 et données socio-économiques à l'échelle du bureau de vote (cf. Guide d'utilisation).")
+  
+  # download data
+  output$downloaddata <- downloadHandler(
+    filename = "data.csv",
+    content = function(file) {
+      if (input$csvtype == "anglo"){
+        write.csv(x = baseData$df, file = file, row.names = FALSE)
+      } else {
+        write.csv2(x = baseData$df, file = file, row.names = FALSE)
+      }
+    })
   
   
   # UNIVARIE ----
   
   # summary
   output$unisummary <- renderText({
-    if (!is.null(input$uniquanti) & is.null(input$uniquali)){
-      textResult <- paste("Moyenne = ", round(mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
+    #if (!is.null(input$uniquanti) & is.null(input$uniquali)){
+    if (input$uniquanti != "" & input$uniquali == ""){
+      textResult <- paste("Nb. obs. = ", nrow(baseData$df), "<br/>",
+                          "Valeurs manquantes = ", anyNA(baseData$df[, input$uniquanti]), "<br/>",
+                          "Moyenne = ", round(mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
                           "Médiane = ", round(median(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
                           "Écart-type = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
                           "Coef. de variation = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE) / mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2),
                           sep = "")
       return(textResult)
-
-    } else if (is.null(input$uniquanti) & !is.null(input$uniquali)) {
+      
+    } else if (input$uniquanti == "" & input$uniquali != "") {
       textResult <- paste("Nb. obs. = ", nrow(baseData$df), "<br/>",
                           "Valeurs manquantes = ", anyNA(baseData$df[, input$uniquali]),
                           sep = "")
@@ -267,24 +351,40 @@ shinyServer(function(input, output, session) {
     }
   })
   
-
+  
   # plot univariate
   output$uniplot <- renderPlot({
-    if (!is.null(input$uniquanti) & is.null(input$uniquali)){
+    if (input$uniquanti != "" & input$uniquali == ""){
       Histogram(df = baseData$df, varquanti = input$uniquanti, nbins = input$nbins, drawsummary = input$drawsummary)
-    } else if (is.null(input$uniquanti) & !is.null(input$uniquali)) {
-        Barplot(df = baseData$df, varquali = input$uniquali)
+    } else if (input$uniquanti == "" & input$uniquali != "") {
+      Barplot(df = baseData$df, varquali = input$uniquali)
     } else {
       return()
     }
   })
+  
+  # download plot
+  output$downloaduniplot <- downloadHandler(
+    filename = "uniplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthuni / 2.54, height = input$heightuni / 2.54, pointsize = 8)
+      if (input$uniquanti != "" & input$uniquali == ""){
+        print(Histogram(df = baseData$df, varquanti = input$uniquanti, nbins = input$nbins, drawsummary = input$drawsummary))
+      } else if (input$uniquanti == "" & input$uniquali != "") {
+        print(Barplot(df = baseData$df, varquali = input$uniquali))
+      } else {
+        return()
+      }
+      dev.off()
+    })
+  
   
   
   # BIVARIE : QUALI-QUALI ----
   
   # Print mosaic plot
   output$mosaic <- renderPlot({
-    if (!is.null(input$qualiindep) & !is.null(input$qualidep)){
+    if (input$qualiindep != "" & input$qualidep != ""){
       Mosaicplot(df = baseData$df, varx = input$qualiindep, vary = input$qualidep)
     } else {
       return()
@@ -293,7 +393,7 @@ shinyServer(function(input, output, session) {
   
   # contingency table
   output$contingtab <- renderTable({
-    if (!is.null(input$qualidep) & !is.null(input$qualiindep)){
+    if (input$qualiindep != "" & input$qualidep != ""){
       chiResults <- chisq.test(baseData$df[, input$qualidep], baseData$df[, input$qualiindep])
       if(input$contcont == "obsfreq"){
         return(chiResults$observed)
@@ -317,7 +417,7 @@ shinyServer(function(input, output, session) {
   
   # contingency text
   output$contingtext <- renderText({
-    if (!is.null(input$qualidep) & !is.null(input$qualiindep)){
+    if (input$qualiindep != "" & input$qualidep != ""){
       chiResults <- chisq.test(baseData$df[, input$qualidep], baseData$df[, input$qualiindep])
       textResult <- paste("Chi2 = ", round(chiResults$statistic, 2), "<br/>",
                           "Phi = ", round(sqrt(chiResults$statistic / nrow(baseData$df)), 2), "<br/>",
@@ -329,171 +429,233 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  # download plot
+  output$downloadmosaicplot <- downloadHandler(
+    filename = "mosaicplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthmosaic / 2.54, height = input$heightmosaic / 2.54, pointsize = 8)
+      if (input$qualiindep != "" & input$qualidep != ""){
+        print(Mosaicplot(df = baseData$df, varx = input$qualiindep, vary = input$qualidep))
+      } else {
+        return()
+      }
+      dev.off()
+    })
   
   
   # BIVARIE : QUANTI-QUANTI ----
   
-  # Print scatter plot
-  
+  # print scatter plot
   output$scatterplot <- renderPlot({
-    if (!is.null(input$quantiindep) & !is.null(input$quantidep)){
+    if (input$quantiindep != "" & input$quantidep != ""){
       ScatterPlot(df = baseData$df, varx = input$quantiindep, vary = input$quantidep)
     } else {
       return()
     }
   })
-
-  # Compute linear regression
   
+  # compute linear regression
   regMod <- reactive({
-    if (!is.null(input$quantidep) & !is.null(input$quantiindep)){
+    if (input$quantiindep != "" & input$quantidep != ""){
       ComputeRegression(df = baseData$df, vardep = input$quantidep, varindep = input$quantiindep)
     } else {
       return()
     }
   })
   
-  # Print coefficients
-  
+  # print coefficients
   output$coefreg <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$quantidep) & !is.null(input$quantiindep)){
+    if (input$quantiindep != "" & input$quantidep != ""){
       regMod()$TABCOEF
     } else {
       return()
     }
   })
   
+  # download plot
+  output$downloadreg1 <- downloadHandler(
+    filename = "regressionplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthreg1 / 2.54, height = input$heightreg1 / 2.54, pointsize = 8)
+      if (input$quantiindep != "" & input$quantidep != ""){
+        print(ScatterPlot(df = baseData$df, varx = input$quantiindep, vary = input$quantidep))
+      } else {
+        return()
+      }
+      dev.off()
+    })
+  
+  
   # BIVARIE : QUALI-QUANTI ----
   
-  # Print boxplot
-  
+  # print boxplot
   output$boxes <- renderPlot({
-    if (!is.null(input$quanliindep) & !is.null(input$quanlidep)){
+    if (input$quanliindep != "" & input$quanlidep != ""){
       Boxplot(df = baseData$df, varx = input$quanliindep, vary = input$quanlidep)
     } else {
       return()
     }
   })
   
-  # Compute linear regression
-  
+  # compute linear regression
   aovMod <- reactive({
-    if (!is.null(input$quanlidep) & !is.null(input$quanliindep)){
+    if (input$quanliindep != "" & input$quanlidep != ""){
       ComputeRegression(df = baseData$df, vardep = input$quanlidep, varindep = input$quanliindep)
     } else {
       return()
     }
   })
   
-  # Print coefficients
-  
+  # print coefficients
   output$coefanova <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$quanlidep) & !is.null(input$quanliindep)){
-      aovMod()$TABCOEF
+    if (input$quanliindep != "" & input$quanlidep != ""){
+      rbind(aovMod()$TABVAR, aovMod()$TABCOEF)
     } else {
       return()
     }
   })
   
+  # download plot
+  output$downloadanova <- downloadHandler(
+    filename = "anovaplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthanova1 / 2.54, height = input$heightanova1 / 2.54, pointsize = 8)
+      if (input$quanliindep != "" & input$quanlidep != ""){
+        print(Boxplot(df = baseData$df, varx = input$quanliindep, vary = input$quanlidep))
+      } else {
+        return()
+      }
+      dev.off()
+    })
   
   
   # TRIVARIE : ANOVA 2 FACTORS ----
   
-  # Print boxplot
-  
+  # print boxplot
   output$boxes2 <- renderPlot({
-    if (!is.null(input$aovindep) & !is.null(input$aovdep)){
+    if (!is.null(input$aovindep) & input$aovdep != ""){
       Boxplot2(df = baseData$df, varx = input$aovindep[1], vary = input$aovdep, groupx = input$aovindep[2])
     } else {
       return()
     }
   })
   
-  # Compute linear regression
-  
+  # compute linear regression
   aov2Mod <- reactive({
-    if (!is.null(input$aovdep) & !is.null(input$aovindep)){
+    if (input$aovdep != "" & !is.null(input$aovindep)){
       ComputeRegression(df = baseData$df, vardep = input$aovdep, varindep = input$aovindep)
     } else {
       return()
     }
   })
   
-  # Print coefficients
-  
+  # print coefficients
   output$coefanova2 <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$aovdep) & !is.null(input$aovindep)){
+    if (input$aovdep != "" & !is.null(input$aovindep)){
       aov2Mod()$TABCOEF
     } else {
       return()
     }
   })
   
+  # download plot
+  output$downloadanova2 <- downloadHandler(
+    filename = "anovaplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthanova2 / 2.54, height = input$heightanova2 / 2.54, pointsize = 8)
+      if (!is.null(input$aovindep) & input$aovdep != ""){
+        print(Boxplot2(df = baseData$df, varx = input$aovindep[1], vary = input$aovdep, groupx = input$aovindep[2]))
+      } else {
+        return()
+      }
+      dev.off()
+    })
+  
+  
   # TRIVARIE : ANCOVA ----
   
-  # Print scatter
-  
+  # print scatter
   output$scatterancov <- renderPlot({
-    if (!is.null(input$ancovindep) & !is.null(input$ancovdep)){
+    if (input$ancovdep != "" & !is.null(input$ancovindep)){
       ScatterPlotAncov(df = baseData$df, varx = input$ancovindep[1], vary = input$ancovdep, groupx = input$ancovindep[2])
     } else {
       return()
     }
   })
   
-  # Compute linear regression
-  
+  # compute linear regression
   ancovMod <- reactive({
-    if (!is.null(input$ancovdep) & !is.null(input$ancovindep)){
+    if (input$ancovdep != "" & !is.null(input$ancovindep)){
       ComputeRegression(df = baseData$df, vardep = input$ancovdep, varindep = input$ancovindep, interact = input$interactancov)
     } else {
       return()
     }
   })
   
-  # Print coefficients
-  
+  # print coefficients
   output$coefancov <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$ancovdep) & !is.null(input$ancovindep)){
+    if (input$ancovdep != "" & !is.null(input$ancovindep)){
       ancovMod()$TABCOEF
     } else {
       return()
     }
   })
   
+  # download plot
+  output$downloadancova <- downloadHandler(
+    filename = "ancovaplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthancova / 2.54, height = input$heightancova / 2.54, pointsize = 8)
+      if (input$ancovindep != "" & !is.null(input$ancovdep)){
+        print(ScatterPlotAncov(df = baseData$df, varx = input$ancovindep[1], vary = input$ancovdep, groupx = input$ancovindep[2]))
+      } else {
+        return()
+      }
+      dev.off()
+    })
   
   
   # TRIVARIE : REGRESSION ----
   
-  # Print scatter
-  
+  # print scatter
   output$scatterreg2 <- renderPlot({
-    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+    if (input$quanti2dep != "" & !is.null(input$quanti2indep)){
       ScatterPlot3D(df = baseData$df, varx = input$quanti2indep[1], vary = input$quanti2indep[2], varz = input$quanti2dep)
     } else {
       return()
     }
   })
   
-  # Compute linear regression
-  
+  # compute linear regression
   reg2Mod <- reactive({
-    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+    if (input$quanti2dep != "" & !is.null(input$quanti2indep)){
       ComputeRegression(df = baseData$df, vardep = input$quanti2dep, varindep = input$quanti2indep, interact = input$interactreg)
     } else {
       return()
     }
   })
   
-  # Print coefficients
-  
+  # print coefficients
   output$coefreg2 <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$quanti2indep) & !is.null(input$quanti2dep)){
+    if (input$quanti2dep != "" & !is.null(input$quanti2indep)){
       reg2Mod()$TABCOEF
     } else {
       return()
     }
   })
+  
+  # download plot
+  output$downloadreg2 <- downloadHandler(
+    filename = "regressionplot.svg",
+    content = function(file) {
+      svg(file, width = input$widthreg2 / 2.54, height = input$heightreg2 / 2.54, pointsize = 8)
+      if (input$quanti2dep != "" & !is.null(input$quanti2indep)){
+        print(ScatterPlot3D(df = baseData$df, varx = input$quanti2indep[1], vary = input$quanti2indep[2], varz = input$quanti2dep))
+      } else {
+        return()
+      }
+      dev.off()
+    })
   
   
   
@@ -502,7 +664,7 @@ shinyServer(function(input, output, session) {
   # Compute linear regression
   
   regmultMod <- reactive({
-    if (!is.null(input$regmultindep) & !is.null(input$regmultdep)){
+    if (input$regmultdep != "" & !is.null(input$regmultindep)){
       ComputeRegressionMult(df = baseData$df, vardep = input$regmultdep, varindep = input$regmultindep)
     } else {
       return()
@@ -511,7 +673,7 @@ shinyServer(function(input, output, session) {
   
   # Print matrix
   output$matcor <- renderTable(include.rownames = TRUE, expr = {
-    if (!is.null(input$regmultindep) & !is.null(input$regmultdep)){
+    if (input$regmultdep != "" & !is.null(input$regmultindep)){
       regmultMod()$MATCOR
     } else {
       return()
@@ -521,7 +683,7 @@ shinyServer(function(input, output, session) {
   # Print coefficients
   
   output$coefregmult <- renderTable(include.rownames = FALSE, expr = {
-    if (!is.null(input$regmultdep) & !is.null(input$regmultindep)){
+    if (input$regmultdep != "" & !is.null(input$regmultindep)){
       regmultMod()$TABCOEF
     } else {
       return()
@@ -590,12 +752,15 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  
+  # CARTOGRAPHIE ----
+  
   output$carto <- renderPlot({
-    # if (!is.null(input$factovar)){
+    if (input$cartovar != ""){
       choroLayer(spdf = baseData$spdf, df = baseData$df, spdfid = "BUREAU", dfid = "BUREAU", var = input$cartovar, method = input$cartomethod, nclass = input$cartoclass)
-    # } else {
-      # return()
-    # }
+    } else {
+      return()
+    }
   })
   
 })

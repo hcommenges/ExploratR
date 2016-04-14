@@ -116,25 +116,35 @@ ScatterPlot3D <- function(df, varx, vary, varz){
 
 # Compute linear model ----
 
-ComputeRegression <- function(df, vardep, varindep, interact = FALSE){
+ComputeRegression <- function(df, vardep, varindep, interact = FALSE, decompvar = FALSE){
   if(interact == FALSE){
-    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "+")))), data = df))
+    linMod <- lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "+")))), data = df)
+    linModSumry <- summary(linMod)
   } else {
-    linMod <- summary(lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "*")))), data = df))
+    linMod <- lm(formula = formula(eval(paste(vardep, "~", paste(varindep, collapse = "*")))), data = df)
+    linModSumry <- summary(linMod)
   }
-  coefReg <- round(linMod$coefficients, digits = 2)[, 1:2]
-  rawR2 <- round(linMod$r.squared, digits = 2)
-  adjR2 <- round(linMod$adj.r.squared, digits = 2)
+  coefReg <- round(linModSumry$coefficients, digits = 2)[, 1:2]
+  rawR2 <- round(linModSumry$r.squared, digits = 2)
+  adjR2 <- round(linModSumry$adj.r.squared, digits = 2)
 
-  tabResid <- data.frame(ABSRESID = round(linMod$residuals, digits = 3), 
-                         RELRESID = round(linMod$residuals / (df[, vardep] - linMod$residuals), digits = 3))
+  tabResid <- data.frame(ABSRESID = round(linModSumry$residuals, digits = 3), 
+                         RELRESID = round(linModSumry$residuals / (df[, vardep] - linModSumry$residuals), digits = 3))
   
   tabResults <- data.frame(CONCEPT = c("Coef. de détermination",
                                        "Coef. de détermination ajusté",
                                        row.names(coefReg)),
                            VALEUR = c(rawR2, adjR2, coefReg[, 1]),
                            stringsAsFactors = FALSE)
-  return(list(TABCOEF = tabResults, TABRESID = tabResid))
+  
+  if(decompvar == TRUE){
+    tabVariance <- data.frame(CONCEPT = c("Variance inter", "Variance intra"),
+                              VALEUR = round(anova(linMod)[[2]] / nrow(df), digits = 2),
+                              stringsAsFactors = FALSE)
+  } else {tabVariance <- NULL}
+
+  
+  return(list(TABCOEF = tabResults, TABRESID = tabResid, TABVAR = tabVariance))
 }
 
 
@@ -159,6 +169,8 @@ ComputeRegressionMult <- function(df, vardep, varindep, interact = FALSE){
   return(list(TABCOEF = tabResults, TABRESID = tabResid, MATCOR = matCor))
 }
 
+
+# Compute principal components analysis ----
 
 ComputePrincipalComp <- function(df, varquanti, ident){
   # compute analysis
