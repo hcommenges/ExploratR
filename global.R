@@ -6,8 +6,8 @@
 
 # load packages ----
 
-require(RColorBrewer)
-require(ggplot2)
+library(RColorBrewer)
+library(ggplot2)
 library(scatterplot3d)
 library(ade4)
 library(cartography)
