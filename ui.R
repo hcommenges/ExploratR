@@ -7,7 +7,8 @@ shinyUI(fluidPage(
   theme = shinytheme("united"),
   titlePanel("ExploratR - Exploration uni- bi- et multivariée avec R",
              tags$head(tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
-                       tags$title("ExploratR - Exploration uni- bi- et multivariée avec R"))
+                       tags$title("ExploratR - Exploration uni- bi- et multivariée avec R"),
+                       includeScript("www/analytics.js")
   ),
   
   tabsetPanel(
