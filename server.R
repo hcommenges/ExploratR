@@ -10,13 +10,13 @@ shinyServer(function(input, output, session) {
   
   observe({
     req(input$fileInput$datapath)
-    print(5)
-    baseData$df <- read.csv(file = input$fileInput$datapath,
-                            sep = input$sepcol,
-                            quote = input$quote,
-                            dec = input$sepdec,
-                            stringsAsFactor = FALSE,
-                            check.names = FALSE)
+    oriData <- read.csv(file = input$fileInput$datapath,
+                        sep = input$sepcol,
+                        quote = input$quote,
+                        dec = input$sepdec,
+                        stringsAsFactor = FALSE,
+                        check.names = FALSE)
+    baseData$df <- oriData
   })
   
   observe({
@@ -109,6 +109,25 @@ shinyServer(function(input, output, session) {
   })
   
   
+  
+  # FILTER ROWS ----
+  
+  observeEvent(input$addfilter, {
+    tempTab <- try(baseData$df %>% filter_(input$filterrow))
+    if(is.data.frame(tempTab)){
+      baseData$df <- tempTab
+    } else {
+      baseData$df <- baseData$df
+    }
+  })
+  
+  observeEvent(input$delfilter, {
+    if(colnames(baseData$df)[1] == "BUREAU"){
+      baseData$df <- tabFinal
+    } else {
+      baseData$df <- oriData
+    }
+  })
   
   # ADD COLUMNS ----
   
@@ -626,26 +645,26 @@ shinyServer(function(input, output, session) {
   
   # Compute factorial analysis
   
-  principalComp <- reactive({
-    if(length(input$factovar) >= 2) {
-      if(colnames(baseData$df)[1] == "BUREAU"){
-        ComputePrincipalComp(df = baseData$df, varquanti = input$factovar, ident = "BUREAU")
+  
+  principalComp <- eventReactive(input$buttonpca, {
+    if(colnames(baseData$df)[1] == "BUREAU"){
+      ComputePrincipalComp(df = baseData$df, varquanti = input$factovar, ident = "BUREAU")
+    } else {
+      if(input$idtab == ""){
+        stop("Sélectionner une variable identifiant (onglet Données)")
       } else {
         ComputePrincipalComp(df = baseData$df, varquanti = input$factovar, ident = input$idtab)
       }
-    } else {
-      stop("Sélectionner au moins deux variables")
     }
   })
+  
+  
   
   # Correlation matrix
   
   output$facmatcor <- renderTable({
-    if (!is.null(input$factovar)){
-      CorCompMat(dudiobj = principalComp(), xaxis = input$xaxis, yaxis = input$yaxis)
-    } else {
-      return()
-    }
+    req(principalComp)
+    CorCompMat(dudiobj = principalComp(), xaxis = input$xaxis, yaxis = input$yaxis)
   })
   
   

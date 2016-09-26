@@ -39,6 +39,7 @@ shinyUI(fluidPage(
                      checkboxInput("csvSettings", "Options du format CSV", FALSE),
                      conditionalPanel(
                        condition = "input.csvSettings == true",
+                       selectInput("encodtab", "Codage des charactères", choices = c(UTF8 = "UTF-8", Latin1 = "latin1"), selected = "UTF-8", multiple = FALSE, width = "50%"),
                        radioButtons("sepcol", "Separateur de colonnes",
                                     c(Virgule = ",",
                                       Point_virgule = ";",
@@ -59,8 +60,8 @@ shinyUI(fluidPage(
                                  choices = "",
                                  selected = "", 
                                  multiple = FALSE,
-                                 selectize = TRUE),
-                     
+                                 selectize = TRUE, width = "50%"),
+                     tags$hr(),
                      # Charger le shape
                      fileInput("shapeInput", "Charger le fond de carte", accept = c("application/zip", "application/x-gzip", ".zip")),
                      selectInput("idshape",
@@ -68,7 +69,7 @@ shinyUI(fluidPage(
                                  choices = "",
                                  selected = "", 
                                  multiple = FALSE,
-                                 selectize = TRUE)
+                                 selectize = TRUE, width = "50%")
                    ),
                    tags$hr(),
                    tags$h4("Récupérer le tableau"),
@@ -79,9 +80,15 @@ shinyUI(fluidPage(
                )),
                
                column(9, wellPanel(
-                 tags$hr(),
-                 div(dataTableOutput("contentstable"), style = "overflow-x: auto;")
-               )
+                 tags$h4(HTML("Filtrer les données")),
+                 textInput("filterrow", label = 'Écrire un test conditionnel (ex. : BUREAU == "75116_1626" ou TXABS > 12)', width = "50%"),
+                 fluidRow(column(3,
+                                 actionButton("addfilter", label = "Appliquer le filtre")),
+                          column(3,
+                                 actionButton("delfilter", label = "Supprimer le filtre")))
+               )),
+               column(9,
+                      div(dataTableOutput("contentstable"), style = "overflow-x: auto;")
                )
              )
     ),
@@ -438,6 +445,7 @@ shinyUI(fluidPage(
                                         selected = "", 
                                         multiple = TRUE, 
                                         selectize = TRUE),
+                            actionButton("buttonpca", "Calculer l'ACP"),
                             selectInput("xaxis", label = "Axe des abscisses (x)", choices = 1:4, selected = 1, multiple = FALSE, selectize = TRUE),
                             selectInput("yaxis", label = "Axe des ordonnées (y)", choices = 1:4, selected = 2, multiple = FALSE, selectize = TRUE))
                           ),
