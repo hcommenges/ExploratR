@@ -20,7 +20,7 @@ shinyUI(fluidPage(
                column(2, wellPanel(
                  htmlOutput("citation")
                )),
-               column(10, includeMarkdown("README.md")))),
+               column(10, includeMarkdown("README_app.md")))),
     
     # Données ----
     
