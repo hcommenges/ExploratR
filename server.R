@@ -14,6 +14,7 @@ shinyServer(function(input, output, session) {
                         sep = input$sepcol,
                         quote = input$quote,
                         dec = input$sepdec,
+                        encoding = input$encodtab,
                         stringsAsFactor = FALSE,
                         check.names = FALSE)
     baseData$df <- oriData
