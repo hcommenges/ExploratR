@@ -354,29 +354,45 @@ shinyServer(function(input, output, session) {
     if((length(unique(baseData$df[, input$qualidep])) - 1) * (length(unique(baseData$df[, input$qualiindep])) - 1) > 150){
       stop("La ou les variables sélectionnées ne sont probablement pas qualitatives (ddl > 150)")
     } else {
-      Mosaicplot(df = baseData$df, varx = input$qualiindep, vary = input$qualidep)
+      Mosaicplot(df = baseData$df, varx = input$qualidep, vary = input$qualiindep)
     }
   })
   
   # contingency table
   output$contingtab <- renderTable({
     req(input$qualiindep, input$qualidep)
-    chiResults <- chisq.test(baseData$df[, input$qualidep], baseData$df[, input$qualiindep])
+    levelsRow <- sort(unique(baseData$df[, input$qualiindep]))
+    levelsCol <- sort(unique(baseData$df[, input$qualidep]))
+    
+    chiResults <- chisq.test(baseData$df[, input$qualiindep], baseData$df[, input$qualidep])
+    
     if(input$contcont == "obsfreq"){
-      return(chiResults$observed)
+      matRes <- matrix(chiResults$observed, nrow = length(levelsRow))
+      row.names(matRes) <- levelsRow
+      colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "rowpct"){
-      return(100 * prop.table(table(baseData$df[, input$qualidep], baseData$df[, input$qualiindep]), margin = 1))
+      matRes <- as.matrix(100 * prop.table(table(baseData$df[, input$qualiindep], baseData$df[, input$qualidep]), margin = 1))
+      row.names(matRes) <- levelsRow
+      colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "expfreq"){
-      return(round(chiResults$expected, digits = 0))
+      matRes <- matrix(round(chiResults$expected, digits = 0), nrow = length(levelsRow))
+      mode(matRes) <- "integer"
+      row.names(matRes) <- levelsRow
+      colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "rawresid"){
-      return(chiResults$observed - chiResults$expected)
+      matRes <- matrix(chiResults$observed - chiResults$expected, nrow = length(levelsRow))
+      row.names(matRes) <- levelsRow
+      colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "stdresid"){
-      return(chiResults$residuals)
+      matRes <- matrix(chiResults$residuals, nrow = length(levelsRow))
+      row.names(matRes) <- levelsRow
+      colnames(matRes) <- levelsCol
     }
+    return(matRes)
   })
   
   # contingency text
