@@ -7,17 +7,16 @@
 shinyServer(function(input, output, session) {
   
   baseData <- reactiveValues(spdf = bureauxParis, df = tabFinal)
-  
+
   observe({
     req(input$fileInput$datapath)
-    oriData <- read.csv(file = input$fileInput$datapath,
+    baseData$df <- read.csv(file = input$fileInput$datapath,
                         sep = input$sepcol,
                         quote = input$quote,
                         dec = input$sepdec,
                         encoding = input$encodtab,
                         stringsAsFactor = FALSE,
                         check.names = FALSE)
-    baseData$df <- oriData
   })
   
   observe({
@@ -126,7 +125,13 @@ shinyServer(function(input, output, session) {
     if(colnames(baseData$df)[1] == "BUREAU"){
       baseData$df <- tabFinal
     } else {
-      baseData$df <- oriData
+      baseData$df <- read.csv(file = input$fileInput$datapath,
+                              sep = input$sepcol,
+                              quote = input$quote,
+                              dec = input$sepdec,
+                              encoding = input$encodtab,
+                              stringsAsFactor = FALSE,
+                              check.names = FALSE)
     }
   })
   
