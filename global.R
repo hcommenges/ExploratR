@@ -18,6 +18,7 @@ library(ade4)
 library(sp)
 library(rgdal)
 library(cartography)
+library(readr)
 library(dplyr)
 
 # load data ----

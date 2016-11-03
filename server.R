@@ -7,16 +7,24 @@
 shinyServer(function(input, output, session) {
   
   baseData <- reactiveValues(spdf = bureauxParis, df = tabFinal)
-
+  
   observe({
     req(input$fileInput$datapath)
-    baseData$df <- read.csv(file = input$fileInput$datapath,
-                        sep = input$sepcol,
-                        quote = input$quote,
-                        dec = input$sepdec,
-                        encoding = input$encodtab,
-                        stringsAsFactor = FALSE,
-                        check.names = FALSE)
+    
+    if(input$sepdec == "." & input$encodtab == "UTF-8"){
+      inputLocale <- locale("fr", encoding = "UTF-8", decimal_mark = ".")
+    } else if(input$sepdec == "," & input$encodtab == "UTF-8") {
+      inputLocale <- locale("fr", encoding = "UTF-8", decimal_mark = ",")
+    } else if(input$sepdec == "." & input$encodtab == "latin1") {
+      inputLocale <- locale("fr", encoding = "latin1", decimal_mark = ".")
+    } else if(input$sepdec == "," & input$encodtab == "latin1") {
+      inputLocale <- locale("fr", encoding = "latin1", decimal_mark = ",")
+    }
+    
+    baseData$df <- as.data.frame(read_delim(file = input$fileInput$datapath,
+                                            delim = input$sepcol,
+                                            quote = input$quote,
+                                            locale = inputLocale))
   })
   
   observe({
@@ -45,9 +53,6 @@ shinyServer(function(input, output, session) {
     
     updateSelectInput(session = session,
                       inputId = "idtab",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "idshape",
                       choices = columnList)
     updateSelectInput(session = session,
                       inputId = "uniquanti",
@@ -108,6 +113,13 @@ shinyServer(function(input, output, session) {
                       choices = columnList)
   })
   
+  observe({
+    req(baseData$spdf)
+    columnListShape <- colnames(as.data.frame(baseData$spdf))
+    updateSelectInput(session = session,
+                      inputId = "idshape",
+                      choices = c("", columnListShape))
+  })
   
   
   # FILTER ROWS ----
@@ -125,13 +137,20 @@ shinyServer(function(input, output, session) {
     if(colnames(baseData$df)[1] == "BUREAU"){
       baseData$df <- tabFinal
     } else {
-      baseData$df <- read.csv(file = input$fileInput$datapath,
-                              sep = input$sepcol,
-                              quote = input$quote,
-                              dec = input$sepdec,
-                              encoding = input$encodtab,
-                              stringsAsFactor = FALSE,
-                              check.names = FALSE)
+      if(input$sepdec == "." & input$encodtab == "UTF-8"){
+        inputLocale <- locale("fr", encoding = "UTF-8", decimal_mark = ".")
+      } else if(input$sepdec == "," & input$encodtab == "UTF-8") {
+        inputLocale <- locale("fr", encoding = "UTF-8", decimal_mark = ",")
+      } else if(input$sepdec == "." & input$encodtab == "latin1") {
+        inputLocale <- locale("fr", encoding = "latin1", decimal_mark = ".")
+      } else if(input$sepdec == "," & input$encodtab == "latin1") {
+        inputLocale <- locale("fr", encoding = "latin1", decimal_mark = ",")
+      }
+      
+      baseData$df <- as.data.frame(read_delim(file = input$fileInput$datapath,
+                                              delim = input$sepcol,
+                                              quote = input$quote,
+                                              locale = inputLocale))
     }
   })
   
