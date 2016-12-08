@@ -383,7 +383,7 @@ shinyServer(function(input, output, session) {
   })
   
   # contingency table
-  output$contingtab <- renderTable({
+  output$contingtab <- renderTable(rownames = TRUE, expr = {
     req(input$qualiindep, input$qualidep)
     levelsRow <- sort(unique(baseData$df[, input$qualiindep]))
     levelsCol <- sort(unique(baseData$df[, input$qualidep]))
@@ -396,7 +396,9 @@ shinyServer(function(input, output, session) {
       colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "rowpct"){
-      matRes <- as.matrix(100 * prop.table(table(baseData$df[, input$qualiindep], baseData$df[, input$qualidep]), margin = 1))
+      matRes <- matrix(data = 100 * prop.table(table(df$Species, df$Type), margin = 1), 
+                       nrow = length(levelsRow),
+                       ncol = length(levelsCol))
       row.names(matRes) <- levelsRow
       colnames(matRes) <- levelsCol
     }
