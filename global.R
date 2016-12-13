@@ -21,11 +21,10 @@ library(cartography)
 library(readr)
 library(dplyr)
 
+
 # load data ----
 
 load("data/ExploratR.RData")
-
-
 
 
 # Draw histogram ----
@@ -605,6 +604,39 @@ PlotProfile <- function(classifobj, nbclus){
 
 
 # Plot choropleth map
+
+HistoClass <- function(varquanti, nbins, brksdiscret, colpal){
+  minVar <- min(varquanti)
+  maxVar <- max(varquanti)
+  nClass <- length(brksdiscret) - 1
+  binWidth <- (maxVar - minVar) / nbins
+  brksVal <- cumsum(c(minVar, rep(binWidth, nbins)))
+  discretVar <- cut(varquanti, breaks = brksVal, include.lowest = TRUE, right = FALSE)
+  countVar <- as.numeric(table(discretVar))
+  
+  geoPoly <- as.data.frame(rbind(
+    cbind(brksVal[1:length(brksVal)-1], countVar, seq(1, length(countVar), 1), 4),
+    cbind(brksVal[2:length(brksVal)], countVar, seq(1, length(countVar), 1), 3),
+    cbind(brksVal[1:length(brksVal)-1], 0, seq(1, length(countVar), 1), 1),
+    cbind(brksVal[2:length(brksVal)], 0, seq(1, length(countVar), 1), 2)
+  ))
+  colnames(geoPoly) <- c("X", "Y", "ID", "ORDER")
+  
+  valPoly <- data.frame(ID = seq(1, nbins, 1),
+                        VAL = cut(brksVal, breaks = brksdiscret, include.lowest = TRUE, right = FALSE)[-(nbins+1)])
+  
+  tabPoly <- left_join(x = geoPoly, y = valPoly, by = "ID") %>% arrange(ID, ORDER)
+  
+  ggplot(tabPoly) +
+    geom_polygon(aes(x = X, y = Y, fill = VAL, group = ID), color = "white") +
+    scale_x_continuous("Variable") + scale_y_continuous(paste("Fréquence (n = ", length(varquanti), ")")) +
+    scale_fill_manual(values = colpal) +
+    theme_bw()
+  
+}
+
+
+
 
 CartoVar <- function(spdf, df, idshape, idtab, varquanti, paltype, discret, nbcl){
   allPal <- c("blue.pal", "orange.pal", "red.pal", "brown.pal", "green.pal",

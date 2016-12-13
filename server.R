@@ -396,7 +396,7 @@ shinyServer(function(input, output, session) {
       colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "rowpct"){
-      matRes <- matrix(data = 100 * prop.table(table(df$Species, df$Type), margin = 1), 
+      matRes <- matrix(data = 100 * prop.table(table(baseData$df[, input$qualiindep], baseData$df[, input$qualidep]), margin = 1), 
                        nrow = length(levelsRow),
                        ncol = length(levelsCol))
       row.names(matRes) <- levelsRow
