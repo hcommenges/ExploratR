@@ -538,14 +538,22 @@ shinyUI(fluidPage(
     tabPanel("Cartographie", 
              fluidRow(
                column(3, wellPanel(
-                 tags$h4("Choisir la variable"),
+                 selectInput("colpal", label = "Type de palette", choices = c("Quantitative" = "quanti", "Qualitative" = "quali"), selected = NULL),
                  selectInput(inputId = "cartovar", 
                              label = "Choisir la variable", 
                              choices = "", 
                              selected = "", 
                              multiple = FALSE, 
                              selectize = TRUE),
-                 selectInput("colpal", label = "Type de palette", choices = c("Quantitative" = "quanti", "Divergente" = "diver", "Qualitative" = "quali"), selected = NULL),
+                 selectInput("colcol", label = "Choix de couleur", choices = c("Bleu" = "blue.pal", 
+                                                                               "Rouge" = "red.pal", 
+                                                                               "Vert" = "green.pal",
+                                                                               "Gris" = "grey.pal",
+                                                                               "Vin" = "wine.pal",
+                                                                               "Violet" = "purple.pal",
+                                                                               "Sable" = "sand.pal",
+                                                                               "Pastel (quali)" = "pastel.pal",
+                                                                               "Multi (quali)" = "multi.pal")),
                  selectInput("cartomethod", label = "Méthode de discrétisation", choices = c("Amplitude égale" = "equal", 
                                                                                              "Quantiles" = "quantile", 
                                                                                              "Seuils naturels" = "fisher-jenks"), 
@@ -557,6 +565,7 @@ shinyUI(fluidPage(
                  downloadButton("downloadcarto", "Télécharger")
                )),
                column(9, 
+                      htmlOutput("idmsg"),
                       plotOutput("carto", height = 700))
              )
     )

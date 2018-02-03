@@ -808,18 +808,31 @@ shinyServer(function(input, output, session) {
       dev.off()
     })
   
-  
+  reactive(print(input$idtab))
+  reactive(print(input$idshape))
   
   # CARTOGRAPHIE ----
+
+  output$idmsg <- renderText({
+    if(all(colnames(baseData$df)[1:2] == c("BUREAU", "TXABS"))){
+      warningText <- "Jointure entre la variable <strong>BUREAU</strong> (tableau) et la variable <strong>BUREAU</strong> (fond de carte)."
+    } else if (nchar(input$idtab) > 0 & nchar(input$idshape) > 0){
+      warningText <- paste0("Jointure entre la variable <strong>", input$idtab, 
+                            "</strong> (tableau) et la variable <strong>", input$idshape, 
+                            "</strong> (fond de carte).")
+    } else {
+      warningText <- "Jointure impossible, vérifier les identifiants dans l'onglet </strong>Données<strong>"
+    }
+  })
   
   output$carto <- renderPlot({
     req(input$cartovar)
-    if(colnames(baseData$df)[1] == "BUREAU"){
+    if(all(colnames(baseData$df)[1:2] == c("BUREAU", "TXABS"))){
       CartoVar(spdf = baseData$spdf, df = baseData$df, idshape = "BUREAU", idtab = "BUREAU", 
-               varquanti = input$cartovar, paltype = input$colpal, discret = input$cartomethod, nbcl = input$cartoclass)
+               varquanti = input$cartovar, paltype = input$colpal, colcol = input$colcol, discret = input$cartomethod, nbcl = input$cartoclass)
     } else {
       CartoVar(spdf = baseData$spdf, df = baseData$df, idshape = input$idshape, idtab = input$idtab, 
-               varquanti = input$cartovar, paltype = input$colpal, discret = input$cartomethod, nbcl = input$cartoclass)
+               varquanti = input$cartovar, paltype = input$colpal, colcol = input$colcol, discret = input$cartomethod, nbcl = input$cartoclass)
     }
   })
   
@@ -829,12 +842,12 @@ shinyServer(function(input, output, session) {
     content = function(file) {
       svg(file, width = input$widthpca / 2.54, height = input$heightpca / 2.54, pointsize = 8)
       req(input$cartovar)
-      if(colnames(baseData$df)[1] == "BUREAU"){
+      if(all(colnames(baseData$df)[1:2] == c("BUREAU", "TXABS"))){
         CartoVar(spdf = baseData$spdf, df = baseData$df, idshape = "BUREAU", idtab = "BUREAU", 
-                 varquanti = input$cartovar, paltype = input$colpal, discret = input$cartomethod, nbcl = input$cartoclass)
+                 varquanti = input$cartovar, paltype = input$colpal, colcol = input$colcol, discret = input$cartomethod, nbcl = input$cartoclass)
       } else {
         CartoVar(spdf = baseData$spdf, df = baseData$df, idshape = input$idshape, idtab = input$idtab, 
-                 varquanti = input$cartovar, paltype = input$colpal, discret = input$cartomethod, nbcl = input$cartoclass)
+                 varquanti = input$cartovar, paltype = input$colpal, colcol = input$colcol, discret = input$cartomethod, nbcl = input$cartoclass)
       }
       dev.off()
     })

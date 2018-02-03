@@ -18,6 +18,7 @@ library(ade4)
 library(sp)
 library(rgdal)
 library(cartography)
+library(colourpicker)
 library(readr)
 library(dplyr)
 
@@ -638,29 +639,9 @@ HistoClass <- function(varquanti, nbins, brksdiscret, colpal){
 
 
 
-CartoVar <- function(spdf, df, idshape, idtab, varquanti, paltype, discret, nbcl){
-  allPal <- c("blue.pal", "orange.pal", "red.pal", "brown.pal", "green.pal",
-              "purple.pal", "pink.pal", "wine.pal", "grey.pal", "turquoise.pal", 
-              "sand.pal", "taupe.pal", "kaki.pal" , "harmo.pal")
+CartoVar <- function(spdf, df, idshape, idtab, varquanti, paltype, colcol, discret, nbcl){
+  colPal <- carto.pal(pal1 = colcol, n1 = nbcl, transparency = TRUE)
   if(paltype == "quanti"){
-    colPal <- carto.pal(pal1 = allPal[sample(x = 1:14, size = 1)], n1 = nbcl, transparency = TRUE)
-    choroLayer(spdf = spdf, 
-               df = df,
-               spdfid = idshape,
-               dfid = idtab,
-               var = varquanti,
-               method = discret,
-               nclass = nbcl,
-               border = "grey",
-               legend.values.rnd = 1,
-               col = colPal,
-               legend.title.cex = 1, legend.values.cex = 1)
-  } else if (paltype == "diver") {
-    if(nbcl %% 2 == 0){
-      colPal <- carto.pal(pal1 = "orange.pal", n1 = nbcl/2, pal2 = "green.pal", n2 = nbcl / 2, transparency = TRUE)
-    } else {
-      colPal <- carto.pal(pal1 = "orange.pal", n1 = nbcl/2, pal2 = "green.pal", n2 = nbcl / 2, middle = TRUE, transparency = TRUE)
-    }
     choroLayer(spdf = spdf, 
                df = df,
                spdfid = idshape,
@@ -673,7 +654,6 @@ CartoVar <- function(spdf, df, idshape, idtab, varquanti, paltype, discret, nbcl
                col = colPal,
                legend.title.cex = 1, legend.values.cex = 1)
   } else if (paltype == "quali"){
-    colPal <- carto.pal(pal1 = "multi.pal", n1 = nbcl, transparency = TRUE)
     typoLayer(spdf = spdf, 
                df = df,
                spdfid = idshape,
