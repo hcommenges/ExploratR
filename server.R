@@ -6,6 +6,9 @@
 
 shinyServer(function(input, output, session) {
   
+  # load data ----
+  
+  load("data/ExploratR.RData")
   baseData <- reactiveValues(spdf = bureauxParis, df = tabFinal)
   
   observe({
@@ -50,67 +53,13 @@ shinyServer(function(input, output, session) {
   
   observe({
     columnList <- c("", colnames(baseData$df))
+    allInputs <- c("idtab", "univar", "qualidep", "qualiindep", 
+                   "quantidep", "quantiindep", "quanlidep", "quanliindep",
+                   "aovdep", "aovindep", "ancovdep", "ancovindep", "quanti2dep", "quanti2indep",
+                   "regmultdep", "regmultindep", "factovar", "cahvar", "cartovar")
     
-    updateSelectInput(session = session,
-                      inputId = "idtab",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "uniquanti",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "uniquali",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "qualidep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "qualiindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quantidep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quantiindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quanlidep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quanliindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "aovdep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "aovindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "ancovdep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "ancovindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quanti2dep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "quanti2indep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "regmultdep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "regmultindep",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "factovar",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "cahvar",
-                      choices = columnList)
-    updateSelectInput(session = session,
-                      inputId = "cartovar",
-                      choices = columnList)
+    sapply(X = allInputs, 
+           FUN = function(x) updateSelectInput(session = session, inputId = x, choices = columnList))
   })
   
   observe({
@@ -167,7 +116,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- regMod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- regMod()$TABRESID
   })
   
   # Add regression residuals (anova)
@@ -181,7 +130,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("anova1", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- aovMod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- aovMod()$TABRESID
   })
   
   # Add regression residuals (anova 2)
@@ -195,7 +144,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("anova2", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- aov2Mod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- aov2Mod()$TABRESID
   })
   
   # Add regression residuals (ancova)
@@ -209,7 +158,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- ancovMod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- ancovMod()$TABRESID
   })
   
   # Add regression residuals (2 quanti)
@@ -223,7 +172,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- reg2Mod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- reg2Mod()$TABRESID
   })
   
   # Add regression residuals (multiple)
@@ -237,7 +186,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[, c(absName, relName)] <- regmultMod()$TABRESID
+    baseData$df[[c(absName, relName)]] <- regmultMod()$TABRESID
   })
   
   
@@ -250,7 +199,7 @@ shinyServer(function(input, output, session) {
       compNames <- c("C1", "C2", "C3", "C4")
     }
     
-    baseData$df[, compNames] <- principalComp()$li
+    baseData$df[[compNames]] <- principalComp()$li
   })
   
   # Add factorial coordinates
@@ -262,7 +211,7 @@ shinyServer(function(input, output, session) {
       className <- "CLASSES"
     }
     
-    baseData$df[, className] <- PlotProfile(classifobj = clusterComp(), nbclus = input$cahnclass)$CLUSID
+    baseData$df[[className]] <- PlotProfile(classifobj = clusterComp(), nbclus = input$cahnclass)$CLUSID
   })
   
   
@@ -295,20 +244,26 @@ shinyServer(function(input, output, session) {
   # UNIVARIE ----
   
   # summary
+  
+  observe({
+    print(class(baseData$df[[input$univar]]))
+  })
+  
   output$unisummary <- renderText({
-    if (input$uniquanti != "" & input$uniquali == ""){
+    req(input$univar)
+    if (is.numeric(baseData$df[[input$univar]]) & input$unitype == FALSE){
       textResult <- paste("Nb. obs. = ", nrow(baseData$df), "<br/>",
-                          "Valeurs manquantes = ", anyNA(baseData$df[, input$uniquanti]), "<br/>",
-                          "Moyenne = ", round(mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
-                          "Médiane = ", round(median(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
-                          "Variance = ", round(var(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2), "<br/>",
-                          "Coef. de variation = ", round(sd(baseData$df[, input$uniquanti], na.rm = TRUE) / mean(baseData$df[, input$uniquanti], na.rm = TRUE), digits = 2),
+                          "Valeurs manquantes = ", anyNA(baseData$df[[input$univar]]), "<br/>",
+                          "Moyenne = ", round(mean(baseData$df[[input$univar]], na.rm = TRUE), digits = 2), "<br/>",
+                          "Médiane = ", round(median(baseData$df[[input$univar]], na.rm = TRUE), digits = 2), "<br/>",
+                          "Variance = ", round(var(baseData$df[[input$univar]], na.rm = TRUE), digits = 2), "<br/>",
+                          "Coef. de variation = ", round(sd(baseData$df[[input$univar]], na.rm = TRUE) / mean(baseData$df[[input$univar]], na.rm = TRUE), digits = 2),
                           sep = "")
       return(textResult)
       
-    } else if (input$uniquanti == "" & input$uniquali != "") {
+    } else if (!is.numeric(baseData$df[[input$univar]]) | input$unitype == TRUE) {
       textResult <- paste("Nb. obs. = ", nrow(baseData$df), "<br/>",
-                          "Valeurs manquantes = ", anyNA(baseData$df[, input$uniquali]),
+                          "Valeurs manquantes = ", anyNA(baseData$df[[input$univar]]),
                           sep = "")
       return(textResult)
     } else {
@@ -318,38 +273,35 @@ shinyServer(function(input, output, session) {
   
   # plot univariate
   output$unitab <- renderTable(include.rownames = FALSE, expr = {
-    if (input$uniquanti != "" & input$uniquali == ""){
+    req(input$univar)
+    if (is.numeric(baseData$df[[input$univar]]) & input$unitype == FALSE){
       return()
-    } else if (input$uniquanti == "" & input$uniquali != "") {
-      if (length(unique(baseData$df[, input$uniquali])) > 30){
+    } else if (!is.numeric(baseData$df[[input$univar]]) | input$unitype == TRUE) {
+      if (length(unique(baseData$df[[input$univar]])) > 40){
         stop("La variable sélectionnée n'est probablement pas qualitative")
       } else {
-        tabFreq <- as.data.frame(table(baseData$df[, input$uniquali]))
+        tabFreq <- as.data.frame(table(baseData$df[[input$univar]]))
         tabFreq$Perc <- round(100 * tabFreq$Freq / sum(tabFreq$Freq), digits = 2)
         colnames(tabFreq) <- c("Modalité", "Freq. absolue", "Freq. relative")
         return(tabFreq)
+      }} else {
+        return()
       }
-    } else if (input$uniquanti == "" & input$uniquali == ""){
-      return()
-    } else {
-      stop("Sélectionner une seule variable")
-    }
   })
   
   # plot univariate
   output$uniplot <- renderPlot({
-    if (input$uniquanti != "" & input$uniquali == ""){
-      Histogram(df = baseData$df, varquanti = input$uniquanti, nbins = input$nbins, drawsummary = input$drawsummary)
-    } else if (input$uniquanti == "" & input$uniquali != "") {
-      if (length(unique(baseData$df[, input$uniquali])) > 30){
+    req(input$univar)
+    if (is.numeric(baseData$df[[input$univar]]) & input$unitype == FALSE){
+      Histogram(df = baseData$df, varquanti = input$univar, nbins = input$nbins, drawsummary = input$drawsummary)
+    } else if (!is.numeric(baseData$df[[input$univar]]) | input$unitype == TRUE) {
+      if (length(unique(baseData$df[[input$univar]])) > 40){
         stop("La variable sélectionnée n'est probablement pas qualitative")
       } else {
-        Barplot(df = baseData$df, varquali = input$uniquali)
+        Barplot(df = baseData$df, varquali = input$univar)
       }
-    } else if (input$uniquanti == "" & input$uniquali == ""){
-      return()
     } else {
-      stop("Sélectionner une seule variable")
+      return()
     }
   })
   
@@ -358,10 +310,10 @@ shinyServer(function(input, output, session) {
     filename = "uniplot.svg",
     content = function(file) {
       svg(file, width = input$widthuni / 2.54, height = input$heightuni / 2.54, pointsize = 8)
-      if (input$uniquanti != "" & input$uniquali == ""){
-        print(Histogram(df = baseData$df, varquanti = input$uniquanti, nbins = input$nbins, drawsummary = input$drawsummary))
-      } else if (input$uniquanti == "" & input$uniquali != "") {
-        print(Barplot(df = baseData$df, varquali = input$uniquali))
+      if (is.numeric(baseData$df[[input$univar]]) & input$unitype == FALSE){
+        print(Histogram(df = baseData$df, varquanti = input$univar, nbins = input$nbins, drawsummary = input$drawsummary))
+      } else if (!is.numeric(baseData$df[[input$univar]]) | input$unitype == TRUE) {
+        print(Barplot(df = baseData$df, varquali = input$univar))
       } else {
         return()
       }
@@ -375,7 +327,7 @@ shinyServer(function(input, output, session) {
   # Print mosaic plot
   output$mosaic <- renderPlot({
     req(input$qualiindep, input$qualidep)
-    if((length(unique(baseData$df[, input$qualidep])) - 1) * (length(unique(baseData$df[, input$qualiindep])) - 1) > 150){
+    if((length(unique(baseData$df[[input$qualidep]])) - 1) * (length(unique(baseData$df[[input$qualiindep]])) - 1) > 150){
       stop("La ou les variables sélectionnées ne sont probablement pas qualitatives (ddl > 150)")
     } else {
       Mosaicplot(df = baseData$df, varx = input$qualidep, vary = input$qualiindep)
@@ -385,10 +337,10 @@ shinyServer(function(input, output, session) {
   # contingency table
   output$contingtab <- renderTable(rownames = TRUE, expr = {
     req(input$qualiindep, input$qualidep)
-    levelsRow <- sort(unique(baseData$df[, input$qualiindep]))
-    levelsCol <- sort(unique(baseData$df[, input$qualidep]))
+    levelsRow <- sort(unique(baseData$df[[input$qualiindep]]))
+    levelsCol <- sort(unique(baseData$df[[input$qualidep]]))
     
-    chiResults <- chisq.test(baseData$df[, input$qualiindep], baseData$df[, input$qualidep])
+    chiResults <- chisq.test(baseData$df[[input$qualiindep]], baseData$df[[input$qualidep]])
     
     if(input$contcont == "obsfreq"){
       matRes <- matrix(chiResults$observed, nrow = length(levelsRow))
@@ -396,7 +348,7 @@ shinyServer(function(input, output, session) {
       colnames(matRes) <- levelsCol
     }
     else if(input$contcont == "rowpct"){
-      matRes <- matrix(data = 100 * prop.table(table(baseData$df[, input$qualiindep], baseData$df[, input$qualidep]), margin = 1), 
+      matRes <- matrix(data = 100 * prop.table(table(baseData$df[[input$qualiindep]], baseData$df[[input$qualidep]]), margin = 1), 
                        nrow = length(levelsRow),
                        ncol = length(levelsCol))
       row.names(matRes) <- levelsRow
@@ -424,7 +376,7 @@ shinyServer(function(input, output, session) {
   # contingency text
   output$contingtext <- renderText({
     req(input$qualiindep, input$qualidep)
-    chiResults <- chisq.test(baseData$df[, input$qualidep], baseData$df[, input$qualiindep])
+    chiResults <- chisq.test(baseData$df[[input$qualidep]], baseData$df[[input$qualiindep]])
     textResult <- paste("Chi2 = ", round(chiResults$statistic, 2), "<br/>",
                         "Phi = ", round(sqrt(chiResults$statistic / nrow(baseData$df)), 2), "<br/>",
                         "V de Cramer = ", round(sqrt(chiResults$statistic / (nrow(baseData$df) * min(dim(chiResults$observed)))), 2), 
@@ -812,7 +764,7 @@ shinyServer(function(input, output, session) {
   reactive(print(input$idshape))
   
   # CARTOGRAPHIE ----
-
+  
   output$idmsg <- renderText({
     if(all(colnames(baseData$df)[1:2] == c("BUREAU", "TXABS"))){
       warningText <- "Jointure entre la variable <strong>BUREAU</strong> (tableau) et la variable <strong>BUREAU</strong> (fond de carte)."

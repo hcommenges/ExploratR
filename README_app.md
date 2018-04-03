@@ -8,9 +8,8 @@ GNU AFFERO GENERAL PUBLIC LICENSE v3
 
 ### Citation
 
-Commenges H. (2016) **ExploratR : outil interactif d'exploration statistique uni- bi- tri- et multi-variée avec R**, UMR 8504 Géographie-cités.
-[![DOI](https://zenodo.org/badge/53880634.svg)](https://zenodo.org/badge/latestdoi/53880634)
-
+- **Pour l'application:** Commenges H. (2016) *ExploratR : outil interactif d'exploration statistique uni- bi- tri- et multi-variée avec R*, UMR 8504 Géographie-cités. [![DOI](https://zenodo.org/badge/53880634.svg)](https://zenodo.org/badge/latestdoi/53880634)
+- **Pour les données d'exemple:** Colange C., Beauguitte L., Freire-Diaz S. (2013) *Base de données socio-électorales Cartelec (2007-2010)*, [URL](http://www.cartelec.net)
 
 ------
 ### Utilisation
@@ -39,10 +38,8 @@ Résumés numériques et graphiques pour l'exporation d'une variable quantitativ
 
 #### Multivarié
 
-Trois types d'analyses sont disponibles : régression linéaire multiple, analyse en composantes principales normée, classification hiérarchique ascendante. Pour l'ACP seuls les quatre premiers facteurs sont conservés. 
+Trois types d'analyses sont disponibles : régression linéaire multiple, analyse en composantes principales normée, classification hiérarchique ascendante. Pour l'ACP seuls les quatre premiers facteurs sont conservés.
 
 #### Cartographie
 
 Possibilité d'afficher une carte choroplèthe à partir des variables du tableau. Dans le futur l'utilisateur pourra charger son propre fichier spatial et d'aures affichages seront disponibles (palettes de couleurs, symboles proportionnels, etc.).
-
-

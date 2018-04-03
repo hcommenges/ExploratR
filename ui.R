@@ -81,7 +81,7 @@ shinyUI(fluidPage(
                
                column(9, wellPanel(
                  tags$h4(HTML("Filtrer les données")),
-                 textInput("filterrow", label = 'Écrire un test conditionnel (ex. : BUREAU == "75116_1626" ou TXABS > 12)', width = "50%"),
+                 textInput("filterrow", label = 'Écrire un test conditionnel (ex. : BUREAU == "75116_1626" ou TXABS > 12)', width = "60%"),
                  fluidRow(column(3,
                                  actionButton("addfilter", label = "Appliquer le filtre")),
                           column(3,
@@ -99,18 +99,13 @@ shinyUI(fluidPage(
              fluidRow(
                column(3, wellPanel(
                  tags$h4("Choisir la variable à explorer"),
-                 selectInput(inputId = "uniquanti", 
-                             label = "Choisir une variable quanti", 
+                 selectInput(inputId = "univar", 
+                             label = "", 
                              choices = "", 
                              selected = "", 
                              multiple = FALSE, 
                              selectize = TRUE),
-                 selectInput(inputId = "uniquali", 
-                             label = "Choisir une variable quali", 
-                             choices = "", 
-                             selected = "", 
-                             multiple = FALSE, 
-                             selectize = TRUE),
+                 checkboxInput("unitype", "Traiter comme une variable discrète", value = FALSE),
                  checkboxInput("uniset", "Personnaliser l'histogramme"),
                  conditionalPanel(condition = "input.uniset == true",
                                   sliderInput(inputId = "nbins", 

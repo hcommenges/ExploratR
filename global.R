@@ -23,10 +23,6 @@ library(readr)
 library(dplyr)
 
 
-# load data ----
-
-load("data/ExploratR.RData")
-
 
 # Draw histogram ----
 
