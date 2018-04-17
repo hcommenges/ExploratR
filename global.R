@@ -18,7 +18,6 @@ library(ade4)
 library(sp)
 library(rgdal)
 library(cartography)
-library(colourpicker)
 library(readr)
 library(dplyr)
 
