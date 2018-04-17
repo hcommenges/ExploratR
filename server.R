@@ -116,7 +116,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- regMod()$TABRESID
+    baseData$df[c(absName, relName)] <- regMod()$TABRESID
   })
   
   # Add regression residuals (anova)
@@ -130,7 +130,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("anova1", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- aovMod()$TABRESID
+    baseData$df[c(absName, relName)] <- aovMod()$TABRESID
   })
   
   # Add regression residuals (anova 2)
@@ -144,7 +144,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("anova2", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- aov2Mod()$TABRESID
+    baseData$df[c(absName, relName)] <- aov2Mod()$TABRESID
   })
   
   # Add regression residuals (ancova)
@@ -158,7 +158,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- ancovMod()$TABRESID
+    baseData$df[c(absName, relName)] <- ancovMod()$TABRESID
   })
   
   # Add regression residuals (2 quanti)
@@ -172,7 +172,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- reg2Mod()$TABRESID
+    baseData$df[c(absName, relName)] <- reg2Mod()$TABRESID
   })
   
   # Add regression residuals (multiple)
@@ -186,7 +186,7 @@ shinyServer(function(input, output, session) {
       relName <- paste("lm", "RelResid", sep = "_")
     }
     
-    baseData$df[[c(absName, relName)]] <- regmultMod()$TABRESID
+    baseData$df[c(absName, relName)] <- regmultMod()$TABRESID
   })
   
   
@@ -199,7 +199,7 @@ shinyServer(function(input, output, session) {
       compNames <- c("C1", "C2", "C3", "C4")
     }
     
-    baseData$df[[compNames]] <- principalComp()$li
+    baseData$df[compNames] <- principalComp()$li
   })
   
   # Add factorial coordinates
@@ -211,7 +211,7 @@ shinyServer(function(input, output, session) {
       className <- "CLASSES"
     }
     
-    baseData$df[[className]] <- PlotProfile(classifobj = clusterComp(), nbclus = input$cahnclass)$CLUSID
+    baseData$df[className] <- PlotProfile(classifobj = clusterComp(), nbclus = input$cahnclass)$CLUSID
   })
   
   
@@ -244,10 +244,6 @@ shinyServer(function(input, output, session) {
   # UNIVARIE ----
   
   # summary
-  
-  observe({
-    print(class(baseData$df[[input$univar]]))
-  })
   
   output$unisummary <- renderText({
     req(input$univar)
