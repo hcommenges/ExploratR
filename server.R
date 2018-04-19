@@ -10,6 +10,7 @@ shinyServer(function(input, output, session) {
   
   load("data/ExploratR.RData")
   baseData <- reactiveValues(spdf = bureauxParis, df = tabFinal)
+  buggySHP <- reactiveVal(value = FALSE)
   
   observe({
     req(input$fileInput$datapath)
@@ -32,14 +33,30 @@ shinyServer(function(input, output, session) {
   
   observe({
     req(input$shapeInput)
-    oriDir <- getwd()
-    setwd(tempdir())
-    unzip(zipfile = input$shapeInput$datapath, overwrite = TRUE, exdir = "shpdir")
-    fileName <- list.files("shpdir")[1]
-    layerName <- substr(fileName, start = 1, stop = nchar(fileName) - 4)
-    spObject <- readOGR(dsn = "shpdir", layer = layerName, stringsAsFactors = FALSE)
-    setwd(oriDir)
-    baseData$spdf <- spObject
+    #tempDir reste le même sur toute une session
+    # alors que tempfile est différent à chaque fois
+    # donc on pourra explorer plusieurs shapes différents
+    tmpFile <- tempfile()
+    dir.create(tmpFile) # On crée un dossier correspondant au nom du fichier généré
+    unzip(zipfile = input$shapeInput$datapath, overwrite = TRUE, exdir = tmpFile)
+    filePath <- list.files(tmpFile, pattern = ".shp$", recursive = TRUE, full.names = TRUE)
+    if (length(filePath) >= 1){
+      layerName <- sub(x = basename(filePath), pattern = ".shp$", replacement = "")
+      spObject <- readOGR(dsn = filePath, layer = layerName, stringsAsFactors = FALSE)
+      baseData$spdf <- spObject
+      buggySHP(FALSE)
+    } else {
+      buggySHP(TRUE)
+    }
+    
+  })
+  
+  output$shpLoading <- renderText({
+    req(buggySHP())
+    if (buggySHP()){
+      buggymsg <- "Le shapefile contenu dans le fichier zip n'est pas valide."
+    }
+    buggymsg
   })
   
   
