@@ -64,6 +64,7 @@ shinyUI(fluidPage(
                      tags$hr(),
                      # Charger le shape
                      fileInput("shapeInput", "Charger le fond de carte", accept = c("application/zip", "application/x-gzip", ".zip")),
+                     textOutput("shpLoading", inline = TRUE),
                      selectInput("idshape",
                                  "Variable identifiant", 
                                  choices = "",

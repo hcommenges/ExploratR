@@ -10,6 +10,7 @@ shinyServer(function(input, output, session) {
   
   load("data/ExploratR.RData")
   baseData <- reactiveValues(spdf = bureauxParis, df = tabFinal)
+  buggySHP <- reactiveVal(value = FALSE)
   
   observe({
     req(input$fileInput$datapath)
@@ -43,7 +44,19 @@ shinyServer(function(input, output, session) {
       layerName <- sub(x = basename(filePath), pattern = ".shp$", replacement = "")
       spObject <- readOGR(dsn = filePath, layer = layerName, stringsAsFactors = FALSE)
       baseData$spdf <- spObject
+      buggySHP(FALSE)
+    } else {
+      buggySHP(TRUE)
     }
+    
+  })
+  
+  output$shpLoading <- renderText({
+    req(buggySHP())
+    if (buggySHP()){
+      buggymsg <- "Le shapefile contenu dans le fichier zip n'est pas valide."
+    }
+    buggymsg
   })
   
   
