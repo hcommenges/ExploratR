@@ -35,7 +35,6 @@ shinyServer(function(input, output, session) {
     req(input$shapeInput)
     #tempDir reste le même sur toute une session
     # alors que tempfile est différent à chaque fois
-    # donc on pourra explorer plusieurs shapes différents
     tmpFile <- tempfile()
     dir.create(tmpFile) # On crée un dossier correspondant au nom du fichier généré
     unzip(zipfile = input$shapeInput$datapath, overwrite = TRUE, exdir = tmpFile)
