@@ -391,7 +391,7 @@ shinyServer(function(input, output, session) {
     chiResults <- chisq.test(baseData$df[[input$qualidep]], baseData$df[[input$qualiindep]])
     textResult <- paste("Chi2 = ", round(chiResults$statistic, 2), "<br/>",
                         "Phi = ", round(sqrt(chiResults$statistic / nrow(baseData$df)), 2), "<br/>",
-                        "V de Cramer = ", round(sqrt(chiResults$statistic / (nrow(baseData$df) * min(dim(chiResults$observed)))), 2), 
+                        "V de Cramer = ", round(sqrt(chiResults$statistic / (nrow(baseData$df) * (min(dim(chiResults$observed)) - 1))), 2), 
                         sep = "")
     return(textResult)
   })
